@@ -94,7 +94,7 @@
       : { l: 'Bonding curve', v: `${c.curveProgress == null ? '—' : T.pct(c.curveProgress * 100, 1)}`, s: `On the curve the engine buys and burns: ${T.pct(c.burnedPct)} of supply so far. Sealing starts at graduation.` };
   }
   function first(c) {
-    document.title = `$${c.symbol} · ${c.name} · TIDE`;
+    document.title = 'TIDE';
     const t = tankText(c);
     $('#coin').innerHTML = `
       <div class="coin-head rv"><img class="im" src="${esc(c.image)}" alt=""><div style="min-width:0">

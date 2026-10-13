@@ -45,14 +45,19 @@
   let mt = 0, running = false;
   function sweep(live) {
     const rows = ORDER.map(k => $(`.mrow[data-k="${k}"]`)).filter(Boolean); if (!rows.length) return;
+    const m = $('#machine');
     clearTimeout(mt); running = true;
     rows.forEach(r => r.classList.remove('lit', 'live'));
     const step = live ? 380 : 900;
-    rows.forEach((r, i) => setTimeout(() => { r.classList.add('lit'); if (live) r.classList.add('live'); if (i > 0) setTimeout(() => rows[i - 1].classList.remove('lit', 'live'), step * 0.6); }, i * step));
-    mt = setTimeout(() => { rows.forEach(r => r.classList.remove('lit', 'live')); running = false; const tag = $('#mtag'); if (tag) tag.classList.remove('on'); mt = setTimeout(() => sweep(false), 2200); }, rows.length * step + 700);
+    // a bead of light runs down the steps with the sweep
+    const bead = y => m && m.style.setProperty('--bead', y + 'px');
+    if (m) { bead(rows[0].offsetTop + rows[0].offsetHeight / 2); m.classList.add('flowing'); m.classList.toggle('livef', !!live); }
+    rows.forEach((r, i) => setTimeout(() => { r.classList.add('lit'); if (live) r.classList.add('live'); bead(r.offsetTop + r.offsetHeight / 2); if (i > 0) setTimeout(() => rows[i - 1].classList.remove('lit', 'live'), step * 0.6); }, i * step));
+    mt = setTimeout(() => { rows.forEach(r => r.classList.remove('lit', 'live')); if (m) m.classList.remove('flowing'); running = false; const tag = $('#mtag'); if (tag) tag.classList.remove('on'); mt = setTimeout(() => sweep(false), 2200); }, rows.length * step + 700);
   }
   function machine() {
     const m = $('#machine'); if (!m) return;
+    if (!m.querySelector('.bead')) m.insertAdjacentHTML('beforeend', '<span class="bead" aria-hidden="true"></span>');
     if (T.RM()) return;
     if ('IntersectionObserver' in window) { let started = false; new IntersectionObserver(es => { if (es[0].isIntersecting && !started) { started = true; sweep(false); } }, { threshold: 0.25 }).observe(m); }
     else sweep(false);

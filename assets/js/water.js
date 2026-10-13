@@ -19,6 +19,9 @@
   }
   function wake() { if (!raf && loops.size && !document.hidden) raf = requestAnimationFrame(frame); }
   document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else wake(); });
+  // other effects (motes, cursor light) share the same frame
+  T.addLoop = fn => { if (RMQ.matches) return false; loops.add(fn); wake(); return true; };
+  T.removeLoop = fn => loops.delete(fn);
 
   // a soft vertical light shaft, drawn once and stretched
   let SHAFT = null;
@@ -48,6 +51,7 @@
       this.rips = []; this.parts = []; this.drops = []; this.flashes = []; this.bubbles = [];
       this.shafts = Array.from({ length: o.shafts != null ? o.shafts : 5 }, (_, i) => ({ s: Math.random(), w: rand(26, 70), v: rand(4, 11) * (i % 2 ? 1 : -1), a: rand(.5, 1), p: rand(0, 6.28) }));
       this.seed = rand(0, 100);
+      this.boost = 0;                                  // extra swell from scrolling and engine passes, decays
       this.visible = true; this.last = now(); this.dirty = true;
       this.tick = this.tick.bind(this);
       this.resize();
@@ -96,7 +100,7 @@
     }
 
     surf(x, t) {
-      const A = this.A, sd = this.seed;
+      const A = this.A * (1 + this.boost), sd = this.seed;
       let y = this.base()
         - A * 0.55 * Math.sin(x * 0.0102 + t * 0.62 + sd)
         - A * 0.32 * Math.sin(x * 0.0231 - t * 0.93 + 1.7 + sd)
@@ -121,7 +125,7 @@
     splash(x, power = 1) {
       const t = now(), p = Math.max(.35, Math.min(3, power));
       this.rips.push({ x, t0: t, a: (this.mode === 'page' ? 4.2 : 3.2) * p, c: 170 + 60 * p, k: 0.075, L: 160 + 90 * p });
-      if (this.rips.length > 8) this.rips.shift();
+      if (this.rips.length > 14) this.rips.shift();
       this.flashes.push({ x, t0: t, p });
       const n = Math.round((this.mode === 'page' ? 9 : 7) * Math.min(2.2, p));
       const y = this.base();
@@ -130,27 +134,38 @@
       if (this.still) this.draw(t);
     }
 
+    // a hand trailing through the water: a soft ripple, no splash
+    stir(x, p = 1) {
+      if (this.still) return;
+      this.rips.push({ x, t0: now(), a: Math.min(2.4, 0.9 * p), c: 150, k: 0.08, L: 110, soft: true });
+      if (this.rips.length > 14) this.rips.shift();
+    }
+    // the whole tide swells for a moment (scrolling, an engine pass)
+    surge(k = 0.5) { if (!this.still) this.boost = Math.min(1.6, this.boost + k); }
+
     // tank mode: a drop falls inside the canvas. page mode: a glowing drop element falls from the top of the viewport.
     fall(o = {}) {
       if (this.still) return;
       const x = o.x != null ? o.x : rand(this.W * 0.12, this.W * 0.88);
       if (this.mode === 'tank') { this.drops.push({ x, y: -14, vy: 40, s: o.size || 1 }); return; }
-      const big = !!o.big, el = document.createElement('div');
-      el.className = 'fdrop' + (big ? ' big' : ''); el.setAttribute('aria-hidden', 'true');
-      el.innerHTML = '<img src="/assets/img/drop-192.png" alt="">';
-      document.body.appendChild(el);
-      const w = big ? 34 : 15, h = big ? 50 : 22;
+      const big = !!o.big, sm = !big && !!o.small;
+      const w = big ? 34 : sm ? 10 : 15, h = big ? 50 : sm ? 15 : 22;
       const vx = o.x != null ? o.x : rand(innerWidth * 0.08, innerWidth * 0.92);
       const top = this.cv.getBoundingClientRect().top;
-      const y1 = top + this.base(this.target) - h * 0.82, y0 = -h - 20;
-      const dur = Math.max(700, Math.sqrt(Math.max(100, y1 - y0)) * (big ? 50 : 40));
+      const y1 = top + this.base(this.target) - h * 0.82, y0 = o.y != null ? o.y - h * 0.6 : -h - 20;
+      if (y0 >= y1 - 6) { this.splash(vx, sm ? 0.6 : 0.9); return; }     // already in the water
+      const el = document.createElement('div');
+      el.className = 'fdrop' + (big ? ' big' : sm ? ' sm' : ''); el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = '<img src="/assets/img/drop-192.png" alt="">';
+      document.body.appendChild(el);
+      const dur = Math.max(o.y != null ? 380 : 700, Math.sqrt(Math.max(100, y1 - y0)) * (big ? 50 : 40));
       const L = vx - w / 2;
       const a = el.animate([
         { transform: `translate3d(${L}px,${y0}px,0) scale(.75,.75)`, opacity: 0 },
         { transform: `translate3d(${L}px,${y0 + 30}px,0) scale(.9,1)`, opacity: 1, offset: .07 },
         { transform: `translate3d(${L}px,${y1}px,0) scale(.84,1.2)`, opacity: 1 }
       ], { duration: dur, easing: 'cubic-bezier(.45,0,.92,.55)', fill: 'forwards' });
-      const land = () => { el.remove(); this.splash(vx, big ? 2.6 : 1); };
+      const land = () => { el.remove(); this.splash(vx, big ? 2.6 : sm ? 0.75 : 1); };
       a.onfinish = land; a.oncancel = () => el.remove();
     }
 
@@ -158,6 +173,7 @@
       if (!this.visible) { this.last = t; return; }
       const dt = Math.min(0.05, Math.max(0, t - this.last)); this.last = t;
       if (Math.abs(this.target - this.level) > 1e-5) this.level += (this.target - this.level) * (1 - Math.exp(-dt * 1.3));
+      if (this.boost) { this.boost *= Math.exp(-dt * 1.25); if (this.boost < 0.002) this.boost = 0; }
       // bubbles
       for (const b of this.bubbles) {
         b.y -= b.v * dt; b.x += Math.sin(t * 1.7 + b.p) * 0.22;
@@ -198,7 +214,8 @@
       const back = new Path2D(); const sd = this.seed + 2.1;
       for (let x = 0; x <= W + step; x += step) {
         const xx = Math.min(x, W);
-        const y = b0 - 3.5 - this.A * 0.6 * Math.sin(xx * 0.0083 - t * 0.47 + sd) - this.A * 0.3 * Math.sin(xx * 0.019 + t * 0.71 + sd * 2);
+        const Ab = this.A * (1 + this.boost);
+        const y = b0 - 3.5 - Ab * 0.6 * Math.sin(xx * 0.0083 - t * 0.47 + sd) - Ab * 0.3 * Math.sin(xx * 0.019 + t * 0.71 + sd * 2);
         x === 0 ? back.moveTo(xx, y) : back.lineTo(xx, y);
       }
       back.lineTo(W, H + 2); back.lineTo(0, H + 2); back.closePath();
@@ -250,6 +267,7 @@
 
       // rings on the surface, seen from just above
       for (const r of this.rips) {
+        if (r.soft) continue;
         const age = t - r.t0;
         for (let i = 0; i < 3; i++) {
           const a2 = age - i * 0.22; if (a2 <= 0) continue;

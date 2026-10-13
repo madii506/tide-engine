@@ -90,9 +90,13 @@
 
   // ---------- the page's water + the engine's pulse ----------
   let water = null;
+  // first visit in this tab: the tide comes in from nothing. Every later page: it is already there and ripples as you arrive.
+  T.firstVisit = document.documentElement.classList.contains('intro');
   function initWater() {
     const cv = $('#water'); if (!cv || !T.Water) return;
-    water = T.water = new T.Water(cv, { mode: 'page' });
+    water = T.water = new T.Water(cv, { mode: 'page', level: T.firstVisit && !RM() ? 0 : 0.07 });
+    if (T.firstVisit) setTimeout(() => { if (!water._set) water.setLevel(0.07); }, 700);
+    else setTimeout(() => water.splash(innerWidth * (0.3 + Math.random() * 0.4), 0.9), 380);
   }
   const listeners = [];
   T.onLedger = fn => listeners.push(fn);
@@ -119,10 +123,13 @@
     countUp($('#sTides'), j.tides, v => Math.round(v).toLocaleString('en-US'));
     countUp($('#sSeals'), j.seals + j.burns, v => Math.round(v).toLocaleString('en-US'));
     countUp($('#sSol'), j.sealedSol, v => sol(v, false));
-    if (water) water.setSol(j.sealedSol, !water._set); if (water) water._set = true;
+    if (water) { water.setSol(j.sealedSol, !water._set && !T.firstVisit); water._set = true; }
+    const prev = T._pass; T._pass = j.lastPassAt || prev;
     if (eg) {
       eg.className = 'engine ' + (j.engineOk ? 'ok' : 'err');
       eg.innerHTML = `<span class="pulse"></span><span>${j.engineOk ? `engine running · last pass ${ago(j.lastPassAt)}` : j.lastPassAt ? `engine paused · last pass ${ago(j.lastPassAt)}` : 'engine waiting for its first pass'}</span>`;
+      // a real pass landed since the last look: the engine line beats and the tide swells once
+      if (prev && j.lastPassAt && j.lastPassAt > prev) { eg.classList.add('beat'); setTimeout(() => eg.classList.remove('beat'), 1700); if (water) water.surge(0.7); }
     }
     document.dispatchEvent(new CustomEvent('tide:stats', { detail: j }));
   }
