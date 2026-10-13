@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A tide · TIDE</title>
+<meta name="description" content="A tide’s pool, its sealed liquidity and every pass of its engine, on chain.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/fav32.png?v=1">
+<link rel="icon" type="image/png" sizes="64x64" href="/assets/img/fav64.png?v=1">
+<link rel="apple-touch-icon" href="/assets/img/fav180.png?v=1">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TIDE">
+<meta property="og:title" content="A tide · TIDE">
+<meta property="og:description" content="A tide’s pool, its sealed liquidity and every pass of its engine, on chain.">
+<meta property="og:url" content="https://tide-engine.vercel.app/coin">
+<meta property="og:image" content="https://tide-engine.vercel.app/assets/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A tide · TIDE">
+<meta name="twitter:description" content="A tide’s pool, its sealed liquidity and every pass of its engine, on chain.">
+<meta name="twitter:image" content="https://tide-engine.vercel.app/assets/img/og.png">
+<link rel="preload" href="/assets/fonts/ebg.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jbm.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/img/drop.png" as="image">
+<link rel="stylesheet" href="/assets/css/tide.css?v=1">
+<script src="/assets/js/water.js?v=1" defer></script>
+<script src="/assets/js/core.js?v=1" defer></script>
+<script src="/assets/js/coin.js?v=1" defer></script>
+</head>
+<body>
+<canvas id="water" aria-hidden="true"></canvas>
+<div class="page">
+<header class="mast">
+  <a class="mark" href="/" aria-label="TIDE home"><img class="drop" src="/assets/img/drop.png" alt="" width="235" height="360"></a>
+  <div class="word"><a href="/">TIDE</a></div>
+  <div class="tag">Trade-Indexed Depth Engine</div>
+  <nav class="nav" aria-label="Main"><a href="/">/home</a><a href="/launch">/launch</a><a href="/explore">/explore</a><a data-x href="https://x.com/" target="_blank" rel="noopener">/twitter</a></nav>
+  <div class="stats" aria-live="polite">
+    <span class="st">Tides <span class="v" id="sTides">—</span></span><span class="dot">·</span>
+    <span class="st">Seals <span class="v" id="sSeals">—</span></span><span class="dot">·</span>
+    <span class="st">SOL sealed <span class="v" id="sSol">—</span></span>
+  </div>
+  <div class="engine" id="engine"><span class="pulse"></span><span>reading the engine…</span></div>
+</header>
+<main class="wide" id="coin">
+  <div class="coin-head">
+    <div class="sk" style="width:84px;height:84px;border-radius:12px"></div>
+    <div><div class="sk sk-line" style="width:40%;height:28px"></div><div class="sk sk-line" style="width:70%"></div></div>
+  </div>
+</main>
+<footer class="foot">
+  <div class="risk">memecoins are extremely risky. nothing here is advice.</div>
+  <div class="fl"><a href="/">/home</a><a href="/launch">/launch</a><a href="/explore">/explore</a><a data-x href="https://x.com/" target="_blank" rel="noopener">/twitter</a></div>
+</footer>
+</div>
+</body>
+</html>

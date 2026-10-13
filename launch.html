@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Launch · TIDE</title>
+<meta name="description" content="Launch a pump.fun coin with a depth engine attached. Its creator fees are poured back into its own pool and sealed there.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/fav32.png?v=1">
+<link rel="icon" type="image/png" sizes="64x64" href="/assets/img/fav64.png?v=1">
+<link rel="apple-touch-icon" href="/assets/img/fav180.png?v=1">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TIDE">
+<meta property="og:title" content="Launch · TIDE">
+<meta property="og:description" content="Launch a pump.fun coin with a depth engine attached. Its creator fees are poured back into its own pool and sealed there.">
+<meta property="og:url" content="https://tide-engine.vercel.app/launch">
+<meta property="og:image" content="https://tide-engine.vercel.app/assets/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Launch · TIDE">
+<meta name="twitter:description" content="Launch a pump.fun coin with a depth engine attached. Its creator fees are poured back into its own pool and sealed there.">
+<meta name="twitter:image" content="https://tide-engine.vercel.app/assets/img/og.png">
+<link rel="preload" href="/assets/fonts/ebg.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/jbm.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/img/drop.png" as="image">
+<link rel="stylesheet" href="/assets/css/tide.css?v=1">
+<script src="/assets/js/water.js?v=1" defer></script>
+<script src="/assets/js/core.js?v=1" defer></script>
+<script src="/assets/js/launch.js?v=1" defer></script>
+</head>
+<body>
+<canvas id="water" aria-hidden="true"></canvas>
+<div class="page">
+<header class="mast">
+  <a class="mark" href="/" aria-label="TIDE home"><img class="drop" src="/assets/img/drop.png" alt="" width="235" height="360"></a>
+  <div class="word"><a href="/">TIDE</a></div>
+  <div class="tag">Trade-Indexed Depth Engine</div>
+  <nav class="nav" aria-label="Main"><a href="/">/home</a><a href="/launch">/launch</a><a href="/explore">/explore</a><a data-x href="https://x.com/" target="_blank" rel="noopener">/twitter</a></nav>
+  <div class="stats" aria-live="polite">
+    <span class="st">Tides <span class="v" id="sTides">—</span></span><span class="dot">·</span>
+    <span class="st">Seals <span class="v" id="sSeals">—</span></span><span class="dot">·</span>
+    <span class="st">SOL sealed <span class="v" id="sSol">—</span></span>
+  </div>
+  <div class="engine" id="engine"><span class="pulse"></span><span>reading the engine…</span></div>
+</header>
+<main class="paper">
+  <div class="launch-intro rv">
+    <div class="kicker">Launch</div>
+    <p>Launch a coin with a depth engine attached. From its first trade, its creator fees are poured back into its own pool and sealed there, at the pace of its own depth.</p>
+  </div>
+
+  <form class="form rv" id="form" novalidate autocomplete="off">
+    <div class="form-top">
+      <label class="dz" id="dz" tabindex="0" aria-label="Coin image">
+        <svg class="dz-ico ph" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 3c4 6 8 10 8 15a8 8 0 0 1-16 0c0-5 4-9 8-15z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M15 11v9M11 16l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span class="t1 ph">image</span><span class="t2 ph">png jpg webp gif · 1.5 MB</span>
+        <img id="dzImg" alt=""><span class="chg">change</span>
+        <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif">
+      </label>
+      <div>
+        <div class="field"><label class="lbl" for="name"><span>Name</span><span class="count" id="nameC">0/32</span></label><input class="inp" id="name" maxlength="32" placeholder="Tide"><div class="ferr" id="nameE"></div></div>
+        <div class="field"><label class="lbl" for="symbol"><span>Ticker</span><span class="count" id="symC">0/10</span></label><div class="ticker"><input class="inp mono" id="symbol" maxlength="10" placeholder="TIDE"></div><div class="ferr" id="symE"></div></div>
+      </div>
+    </div>
+    <div class="field"><label class="lbl" for="desc"><span>Description</span><span class="opt">optional</span></label><textarea class="inp" id="desc" maxlength="500" placeholder="What it is, in a line or two."></textarea></div>
+    <details class="more"><summary><span class="lbl">Links <span class="opt">· X · Telegram · website · optional</span></span><span class="pm">+</span></summary>
+      <div class="in">
+        <div class="two"><div class="field"><label class="lbl" for="tw">X</label><input class="inp mono" id="tw" placeholder="https://x.com/yourcoin"><div class="ferr" id="twE"></div></div>
+        <div class="field"><label class="lbl" for="tg">Telegram</label><input class="inp mono" id="tg" placeholder="https://t.me/yourcoin"><div class="ferr" id="tgE"></div></div></div>
+        <div class="field"><label class="lbl" for="web">Website</label><input class="inp mono" id="web" placeholder="https://"><div class="ferr" id="webE"></div></div>
+      </div>
+    </details>
+    <div class="field"><div class="lbl"><span>Dev buy</span><span class="opt" id="needL">—</span></div>
+      <div class="chips" role="group" aria-label="Dev buy in SOL">
+        <button type="button" class="chipbtn" data-dev="0.01">0.01</button><button type="button" class="chipbtn" data-dev="0.1" aria-pressed="true">0.1</button><button type="button" class="chipbtn" data-dev="0.5">0.5</button><button type="button" class="chipbtn" data-dev="1">1</button><button type="button" class="chipbtn" data-dev="2">2</button>
+        <input class="inp custom" id="devC" inputmode="decimal" placeholder="custom" aria-label="Custom dev buy in SOL"><span class="unit">SOL</span>
+      </div>
+      <div class="devnote" id="devNote">Your first buy lands in your wallet once the coin is live.</div>
+    </div>
+
+    <div class="rail" id="rail" style="--k:0"><div class="fill"></div>
+      <div class="rs" data-s="pin"><span class="rd"></span><span class="rl">pin image</span></div>
+      <div class="rs" data-s="deposit"><span class="rd"></span><span class="rl">deposit</span></div>
+      <div class="rs" data-s="create"><span class="rd"></span><span class="rl">create</span></div>
+      <div class="rs" data-s="live"><span class="rd"></span><span class="rl">live</span></div>
+    </div>
+    <div class="wallet-row" id="walletRow"></div>
+    <div class="go-row"><button class="btn" type="submit" id="go">Connect wallet <span class="ar">→</span></button></div>
+    <div class="picker" id="picker" hidden></div>
+    <div class="formerr" id="formErr" role="alert"></div>
+  </form>
+
+  <div class="flow" id="flow" hidden></div>
+
+  <ol class="steps rv">
+    <li><span class="sn">01</span><span>You launch on pump.fun. The coin’s creator is a fresh wallet that only TIDE controls.</span></li>
+    <li><span class="sn">02</span><span>Every minute TIDE claims the creator fees and keeps 0.015 SOL back for gas and rent.</span></li>
+    <li><span class="sn">03</span><span>It pours in slices of 0.5% of the pool’s SOL side, never below 0.01 SOL.</span></li>
+    <li><span class="sn">04</span><span>Half buys the coin and half pairs with it; the liquidity is added and the LP tokens are burned. Nothing is ever sold or withdrawn.</span></li>
+  </ol>
+  <p class="footnote rv">You send one deposit to the coin’s own engine wallet: pump.fun’s creation cost, your dev buy and a 0.015 SOL reserve. Whatever isn’t used comes back with your first buy, and an unfunded launch refunds itself after three hours.</p>
+</main>
+<footer class="foot">
+  <div class="risk">memecoins are extremely risky. nothing here is advice.</div>
+  <div class="fl"><a href="/">/home</a><a href="/launch">/launch</a><a href="/explore">/explore</a><a data-x href="https://x.com/" target="_blank" rel="noopener">/twitter</a></div>
+</footer>
+</div>
+</body>
+</html>
