@@ -8,6 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - run: curl -fsS --max-time 70 "${SITE_URL:-https://tide-engine.vercel.app}/api/tick" || true
+      - run: curl -fsS --max-time 70 "${SITE_URL:-https://tideengine.vercel.app}/api/tick" || true
         env:
           SITE_URL: ${{ vars.SITE_URL }}
