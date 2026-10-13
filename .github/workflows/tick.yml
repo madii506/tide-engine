@@ -1,0 +1,13 @@
+name: engine tick
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: curl -fsS --max-time 70 "${SITE_URL:-https://tide-engine.vercel.app}/api/tick" || true
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
