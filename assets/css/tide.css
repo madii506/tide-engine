@@ -489,6 +489,102 @@ html.vtf .page { animation: pagein .5s var(--ease) both; }
 html.vtf.leaving .page { opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
 @keyframes pagein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* ================= motion layer (fx.js + first visit) ================= */
+#motes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+.lamp { position: fixed; left: 0; top: 0; width: 640px; height: 640px; z-index: 0; pointer-events: none; border-radius: 50%; background: radial-gradient(closest-side, rgba(76, 196, 242, .085), rgba(76, 196, 242, .03) 55%, transparent); opacity: 0; transition: opacity .8s; will-change: transform; }
+.lamp.on { opacity: 1; }
+.fdrop.sm { width: 10px; height: 15px; }
+.fdrop.sm::before { width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+
+/* first visit in a tab: the drop falls in and lands, the name surfaces, the rest follows */
+.mark { transform-origin: 50% 100%; }
+.mark .ring { position: absolute; left: 50%; bottom: -9px; width: 54px; height: 12px; margin-left: -27px; border-radius: 50%; border: 1px solid rgba(170, 232, 255, .6); box-shadow: 0 0 8px rgba(76, 196, 242, .3), inset 0 0 8px rgba(76, 196, 242, .3); opacity: 0; pointer-events: none; z-index: 0; }
+html.intro .mark { animation: dropin 1.3s both; }
+html.intro .mark .ring { animation: ringout 1.5s ease-out .74s both; }
+html.intro .mark .ring.r2 { animation-delay: .94s; }
+@keyframes dropin {
+  0% { transform: translateY(-78vh) scale(.9, 1.14); opacity: 0; animation-timing-function: cubic-bezier(.55, 0, .95, .6); }
+  9% { opacity: 1; }
+  57% { transform: translateY(0) scale(.9, 1.14); animation-timing-function: cubic-bezier(.2, .7, .3, 1); }
+  67% { transform: translateY(5px) scale(1.16, .82); }
+  82% { transform: translateY(-6px) scale(.96, 1.05); }
+  100% { transform: none; }
+}
+@keyframes ringout { 0% { transform: scale(.3); opacity: .95; } 100% { transform: scale(3.6); opacity: 0; } }
+.mark.drip { animation: dripsq .6s ease-out; }
+.mark.drip .ring { animation: ringout 1.3s ease-out .12s; }
+@keyframes dripsq { 0% { transform: none; } 30% { transform: scale(1.05, .94); } 62% { transform: scale(.98, 1.03); } 100% { transform: none; } }
+
+.word .ch { display: inline-block; animation: bob 9s ease-in-out 4s infinite; animation-delay: calc(4s + var(--i, 0) * .12s); }
+@keyframes bob { 0%, 8%, 100% { transform: none; text-shadow: none; } 3.5% { transform: translateY(-5px); text-shadow: 0 0 18px rgba(143, 220, 255, .8); } }
+html.intro .word .ch { animation: chin 1s var(--ease) both; animation-delay: calc(.66s + var(--i, 0) * .1s); }
+@keyframes chin { from { opacity: 0; transform: translateY(20px); filter: blur(9px); } to { opacity: 1; transform: none; filter: blur(0); } }
+html.intro .nav a { animation: rise .7s var(--ease) both; animation-delay: 1.05s; }
+html.intro .nav a:nth-child(2) { animation-delay: 1.12s; }
+html.intro .nav a:nth-child(3) { animation-delay: 1.19s; }
+html.intro .nav a:nth-child(4) { animation-delay: 1.26s; }
+html.intro .stats { animation: rise .8s var(--ease) 1.3s both; }
+html.intro .engine { animation: rise .8s var(--ease) 1.42s both; }
+html.intro .page > main, html.intro .page > .foot { animation: rise 1s var(--ease) 1.5s both; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* headings draw a little wave; sections surface one child at a time */
+.sec h2 .hw { flex: none; align-self: center; width: 72px; height: 10px; margin-left: 2px; overflow: hidden; }
+.sec h2 .hw path { fill: none; stroke: var(--hi); stroke-width: 1.2; stroke-linecap: round; stroke-dasharray: 140; stroke-dashoffset: 140; filter: drop-shadow(0 0 3px rgba(76, 196, 242, .7)); transition: stroke-dashoffset 1.5s var(--ease) .4s; }
+.sec.vis h2 .hw path { stroke-dashoffset: 0; animation: hwave 2.6s linear 1.9s infinite; }
+@keyframes hwave { to { transform: translateX(-24px); } }
+html.js .sec.rv { opacity: 1; transform: none; }
+html.js .sec.rv > * { opacity: 0; transform: translateY(18px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 90ms); }
+html.js .sec.rv .prose > * { opacity: 0; transform: translateY(10px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(120ms + var(--j, 0) * 110ms); }
+html.js .sec.rv.vis > *, html.js .sec.rv.vis .prose > * { opacity: 1; transform: none; }
+
+/* buttons fill like glass on hover; a ripple where pressed */
+@property --fh { syntax: '<length>'; inherits: false; initial-value: -10px; }
+@property --wx { syntax: '<length>'; inherits: false; initial-value: 0px; }
+.btn::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; --fh: -10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4.5 Q 12 0.5 24 4.5 T 48 4.5 V8 H0Z' fill='%234cc4f2' fill-opacity='.34'/%3E%3Cpath d='M0 4.5 Q 12 0.5 24 4.5 T 48 4.5' fill='none' stroke='%23bdeeff' stroke-opacity='.75' stroke-width='.8'/%3E%3C/svg%3E"), linear-gradient(rgba(76, 196, 242, .34), rgba(15, 95, 149, .30));
+  background-repeat: repeat-x, no-repeat; background-size: 48px 8px, 100% max(0px, var(--fh));
+  background-position: var(--wx) calc(100% - max(0px, var(--fh)) + 3px), 0 100%;
+  transition: --fh .7s var(--ease); animation: bwave 2.2s linear infinite paused; }
+.btn:hover::after, .btn:focus-visible::after { --fh: 27px; animation-play-state: running; }
+.btn.sm:hover::after { --fh: 19px; }
+@keyframes bwave { to { --wx: 48px; } }
+.chipbtn, .copy { position: relative; isolation: isolate; }
+.rips { position: absolute; inset: 0; z-index: -1; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.rips i { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(170, 232, 255, .42), rgba(76, 196, 242, .14) 62%, transparent); transform: scale(0); animation: rip .7s var(--ease) forwards; }
+@keyframes rip { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+
+/* the machine: a bead of light runs down the steps */
+.machine { position: relative; }
+.machine .bead { position: absolute; left: -3px; top: 0; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: #e8f9ff; box-shadow: 0 0 10px 3px rgba(76, 196, 242, .85); opacity: 0; transform: translateY(var(--bead, 0px)); transition: transform .5s var(--ease), opacity .45s; pointer-events: none; z-index: 2; }
+.machine.flowing .bead { opacity: 1; }
+.machine.livef .bead { transition-duration: .3s, .3s; box-shadow: 0 0 14px 5px rgba(143, 220, 255, .95); }
+
+/* cards lean toward the pointer, with a glint */
+.tcard::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(160, 228, 255, .13), transparent 46%); opacity: 0; transition: opacity .35s; z-index: 1; }
+.tcard.tilt { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px); transition: transform .14s linear, border-color .35s; border-color: rgba(76, 196, 242, .45); }
+.tcard.tilt::after { opacity: 1; }
+
+/* the engine line beats when a real pass lands */
+.engine.beat { animation: beattext 1.6s ease-out; }
+.engine.beat .pulse::before { content: ''; position: absolute; inset: -3px; border-radius: 50%; border: 1px solid var(--hi2); animation: beatring 1.6s ease-out both; }
+@keyframes beatring { from { transform: scale(.6); opacity: 1; } to { transform: scale(5); opacity: 0; } }
+@keyframes beattext { 0% { color: var(--hi2); text-shadow: 0 0 12px rgba(76, 196, 242, .8); } 100% { text-shadow: none; } }
+
+/* moving between pages: the old page sinks away, the new one surfaces */
+::view-transition-old(root) { animation: tide-out .3s cubic-bezier(.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: tide-in .62s var(--ease) both; }
+@keyframes tide-out { to { opacity: 0; transform: translateY(-10px); filter: blur(5px); } }
+@keyframes tide-in { from { opacity: 0; transform: translateY(24px); filter: blur(7px); } }
+html.vtf .page { animation: tide-in .62s var(--ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .sec.rv > *, html.js .sec.rv .prose > * { opacity: 1; transform: none; }
+  .sec h2 .hw path { stroke-dashoffset: 0; }
+  .word .ch, .mark, .mark .ring { animation: none !important; }
+  .mark .ring { opacity: 0; }
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 980px) {
   .machine-wrap { grid-template-columns: minmax(0, 1fr); }
