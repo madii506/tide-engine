@@ -62,7 +62,7 @@ button { cursor: pointer; }
 .page { position: relative; z-index: 1; padding-bottom: 22vh; }
 
 /* ---------- masthead ---------- */
-.mast { text-align: center; padding: 46px var(--gut) 0; }
+.mast { text-align: center; padding: 80px var(--gut) 0; }
 .mark { display: inline-block; position: relative; width: 74px; height: 109px; view-transition-name: tide-drop; -webkit-tap-highlight-color: transparent; }
 .mark .drop { position: relative; z-index: 1; display: block; width: 100%; height: 100%; animation: float 6.5s ease-in-out infinite; }
 .mark::before { content: ''; position: absolute; left: 50%; top: 60%; width: 230px; height: 230px; margin: -115px 0 0 -115px; border-radius: 50%; background: radial-gradient(closest-side, rgba(76, 196, 242, .26), rgba(47, 150, 220, .08) 52%, transparent); animation: halo 6.5s ease-in-out infinite; pointer-events: none; }
@@ -594,7 +594,7 @@ html.vtf .page { animation: tide-in .62s var(--ease) both; }
 @media (max-width: 640px) {
   :root { --gut: 18px; }
   body { font-size: 17.5px; line-height: 1.7; }
-  .mast { padding-top: 32px; }
+  .mast { padding-top: 54px; }
   .mark { width: 62px; height: 91px; }
   .mark::before { width: 190px; height: 190px; margin: -95px 0 0 -95px; }
   .word { font-size: 33px; margin-top: 16px; }
